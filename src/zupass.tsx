@@ -7,9 +7,9 @@ import {
   ZKEdDSAEventTicketPCDPackage
 } from "@pcd/zk-eddsa-event-ticket-pcd";
 import { useEffect, useState } from "react";
+import { constructZupassPcdGetRequestUrl } from "./PassportInterface";
 import { openZupassPopup, useZupassPopupMessages } from "./PassportPopup";
 import { supportedEvents } from "./zupass-config";
-import { constructZupassPcdGetRequestUrl } from "./PassportInterface";
 
 const ZUPASS_URL = "https://zupass.org";
 
@@ -77,24 +77,22 @@ function openZKEdDSAEventTicketPopup(
 
 type PartialTicketData = Partial<ITicketData>;
 
-async function login() {
-  const nonce = await (
-    await fetch("/api/auth/nonce", { credentials: "include" })
-  ).text();
+async function login(inputParams: any) {
+  const bigIntNone = '0x' + inputParams?.nonce.toString(16);;
   openZKEdDSAEventTicketPopup(
     {
       revealAttendeeEmail: true,
       revealEventId: true,
       revealProductId: true
     },
-    BigInt(nonce),
+    BigInt(bigIntNone),
     supportedEvents,
     []
   );
 }
 
 export function useZupass(): {
-  login: () => Promise<void>;
+  login: (params: any) => Promise<void>;
   ticketData: PartialTicketData | undefined;
 } {
   const [pcdStr] = useZupassPopupMessages();
