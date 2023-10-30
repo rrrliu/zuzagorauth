@@ -1,3 +1,4 @@
+import { generateSignature } from "@/utils/generateSignature";
 import { supportedEvents } from "@/zupass-config";
 import { isEqualEdDSAPublicKey } from "@pcd/eddsa-pcd";
 import { ZKEdDSAEventTicketPCDPackage } from "@pcd/zk-eddsa-event-ticket-pcd";
@@ -15,11 +16,14 @@ const zupassPublicKey: [string, string] = [
 export default withIronSessionApiRoute(
   async function handler(req: NextApiRequest, res: NextApiResponse) {
     try {
-      if (!req.body.pcd) {
-        console.error(`[ERROR] No PCD specified`);
 
-        res.status(400).send("No PCD specified");
-        return;
+      console.log("🚀 ~ file: authenticate.ts:19 ~ handler ~ req.body:", req.body)
+      const { pcd: inputPCD } = req.body;
+      // if (!payload) {
+      //   return res.status(400).json({ message: 'Missing payload.' });
+      // }
+      if (!inputPCD) {
+        return res.status(400).json({ message: 'No PCD specified.' });
       }
 
       const pcd = await ZKEdDSAEventTicketPCDPackage.deserialize(req.body.pcd);
@@ -38,7 +42,8 @@ export default withIronSessionApiRoute(
         return;
       }
 
-      if (pcd.claim.watermark.toString() !== req.session.nonce) {
+      // CHECK WATERMARK IS SAME AS NONCE SAVED IN /validate-sso
+      if (pcd.claim.watermark.toString() !== req.session?.nonce) {
         console.error(`[ERROR] PCD watermark doesn't match`);
 
         res.status(401).send("PCD watermark doesn't match");
@@ -91,10 +96,14 @@ export default withIronSessionApiRoute(
       // external nullifier (i.e. nonce).
       req.session.user = pcd.claim.nullifierHash;
 
+      const { encodedPayload, signature } = generateSignature(pcd)
+
       await req.session.save();
 
       res.status(200).send({
-        attendeeEmail: pcd.claim.partialTicket.attendeeEmail
+        attendeeEmail: pcd.claim.partialTicket.attendeeEmail,
+        encodedPayload,
+        sig: signature
       });
     } catch (error: any) {
       console.error(`[ERROR] ${error.message}`);

@@ -1,4 +1,4 @@
-import { EdDSATicketPCDPackage, ITicketData } from "@pcd/eddsa-ticket-pcd";
+import { EdDSATicketPCDPackage } from "@pcd/eddsa-ticket-pcd";
 import { ArgumentTypeName } from "@pcd/pcd-types";
 import { SemaphoreIdentityPCDPackage } from "@pcd/semaphore-identity-pcd";
 import {
@@ -6,12 +6,11 @@ import {
   ZKEdDSAEventTicketPCDArgs,
   ZKEdDSAEventTicketPCDPackage
 } from "@pcd/zk-eddsa-event-ticket-pcd";
-import { useEffect, useState } from "react";
 import { constructZupassPcdGetRequestUrl } from "./PassportInterface";
-import { openZupassPopup, useZupassPopupMessages } from "./PassportPopup";
+import { openZupassPopup } from "./PassportPopup";
+import { ZUPASS_URL } from "./constants";
+import { InputParams } from './types';
 import { supportedEvents } from "./zupass-config";
-
-const ZUPASS_URL = "https://zupass.org";
 
 /**
  * Opens a Zupass popup to make a proof of a ZK EdDSA event ticket PCD.
@@ -75,51 +74,28 @@ function openZKEdDSAEventTicketPopup(
   openZupassPopup(popupUrl, proofUrl);
 }
 
-type PartialTicketData = Partial<ITicketData>;
+async function login(inputParams: InputParams | null) {
+  if (inputParams === null) return;
+  
+  const bigIntNonce = '0x' + inputParams?.nonce.toString();
 
-async function login(inputParams: any) {
-  const bigIntNone = '0x' + inputParams?.nonce.toString(16);;
   openZKEdDSAEventTicketPopup(
     {
       revealAttendeeEmail: true,
       revealEventId: true,
-      revealProductId: true
+      revealProductId: true,
+      revealAttendeeName: true,
+      revealAttendeeSemaphoreId: true
     },
-    BigInt(bigIntNone),
+    BigInt(bigIntNonce),
     supportedEvents,
     []
   );
 }
 
 export function useZupass(): {
-  login: (params: any) => Promise<void>;
-  ticketData: PartialTicketData | undefined;
+  login: (params: InputParams | null) => Promise<void>;
 } {
-  const [pcdStr] = useZupassPopupMessages();
-  const [ticketData, setTicketData] = useState<PartialTicketData | undefined>(
-    undefined
-  );
 
-  useEffect(() => {
-    (async () => {
-      if (pcdStr) {
-        const response = await fetch("/api/auth/authenticate", {
-          method: "POST",
-          mode: "cors",
-          credentials: "include",
-          headers: {
-            "Access-Control-Allow-Origin": "*",
-            "Content-Type": "application/json"
-          },
-          body: pcdStr
-        });
-
-        if (response.status === 200) {
-          setTicketData(await response.json());
-        }
-      }
-    })();
-  }, [pcdStr]);
-
-  return { login, ticketData };
+  return { login };
 }
