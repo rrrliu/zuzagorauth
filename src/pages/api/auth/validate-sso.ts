@@ -35,9 +35,16 @@ export default withIronSessionApiRoute(
       // Decode the payload
       const rawPayload = Buffer.from(payload, 'base64').toString('utf8');
       const parsedPayload = querystring.parse(rawPayload);
-    
+      const nonce = Array.isArray(parsedPayload.nonce) ? parsedPayload.nonce[0] : parsedPayload.nonce;
+
       // We save the nonce to check it out later and make sure it matched the one we saved.
-      req?.session?.nonce = parsedPayload?.nonce;
+      // Ensure session exists
+      if (!req.session) {
+        console.error('Session is not initialized.');
+        return res.status(500).json({ error: 'Internal Server Error' });
+      }
+
+      req.session.nonce = nonce;
       await req.session.save();
     
       // Validate the signature
