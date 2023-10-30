@@ -25,7 +25,7 @@ export default function Home() {
       try {
         const params = await getParams(searchParams);
         if (searchParams) {
-          const response = await validateSSO(params?.sso, params?.sig, window.location.origin);
+          const response = await validateSSO(params?.sso, params?.sig);
           // TODO: trigger alert if it's not valid
           if (response?.isValid) {
             setloading(false);
@@ -54,7 +54,7 @@ export default function Home() {
     const parsedProof = JSON.parse(proof);
     parsedProof.pcd = JSON.parse(parsedProof.pcd);
 
-    const response = await fetch("/api/auth/authenticate", {
+    const response: any = await fetch("/api/auth/authenticate", {
       method: "POST",
       mode: "cors",
       credentials: "include",
@@ -62,7 +62,6 @@ export default function Home() {
         "Access-Control-Allow-Origin": "*",
         "Content-Type": "application/json"
       },
-      // body: JSON.stringify(body)
       body: pcdStr
     });
 

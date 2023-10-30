@@ -96,7 +96,7 @@ export default withIronSessionApiRoute(
       // external nullifier (i.e. nonce).
       req.session.user = pcd.claim.nullifierHash;
 
-      const { encodedPayload, signature } = generateSignature(pcd)
+      const { encodedPayload, signature } = await generateSignature(pcd)
 
       await req.session.save();
 

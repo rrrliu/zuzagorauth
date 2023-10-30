@@ -1,5 +1,5 @@
 
-export const validateSSO = async (sso, sig, origin) => {
+export const validateSSO = async (sso: string, sig: string) => {
   try {
       const response = await fetch(`/api/auth/validate-sso`, {
           method: 'POST',

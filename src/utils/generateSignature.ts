@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import { matchTicketToType } from '../zupass-config';
 import { toUrlEncodedString } from "./toUrl";
 
-export const generateSignature = async (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Proof>) => {
+export const generateSignature = async (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Proof>)  => {
   try {
         // Extract the desired fields
         const attendeeEmail = pcd.claim.partialTicket.attendeeEmail;
@@ -58,7 +58,7 @@ export const generateSignature = async (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Gro
       return { encodedPayload, signature };
   } catch (error) {
       console.error('There was an error generating the signature:', error);
-      return 'Error generating signature.';
+      throw new Error("There was an error generating the signature.");
   }
 };
 
