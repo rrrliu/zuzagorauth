@@ -1,3 +1,4 @@
+// pages/api/auth/authenticate.ts
 import { generateSignature } from "@/utils/generateSignature";
 import { supportedEvents } from "@/zupass-config";
 import { isEqualEdDSAPublicKey } from "@pcd/eddsa-pcd";
@@ -7,59 +8,69 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const nullifiers = new Set<string>();
 
-// https://api.zupass.org/issue/eddsa-public-key
 const zupassPublicKey: [string, string] = [
   "05e0c4e8517758da3a26c80310ff2fe65b9f85d89dfc9c80e6d0b6477f88173e",
   "29ae64b615383a0ebb1bc37b3a642d82d37545f0f5b1444330300e4c4eedba3f"
 ];
 
-export default withIronSessionApiRoute(
-  async function handler(req: NextApiRequest, res: NextApiResponse) {
-    try {
+declare module "iron-session" {
+  interface IronSessionData {
+    nonce?: string;
+    user?: string;
+  }
+}
 
-      console.log("🚀 ~ file: authenticate.ts:19 ~ handler ~ req.body:", req.body)
+const authRoute = async (req: NextApiRequest, res: NextApiResponse) => {
+    try {
       const { pcd: inputPCD } = req.body;
-      // if (!payload) {
-      //   return res.status(400).json({ message: 'Missing payload.' });
-      // }
-      if (!inputPCD) {
-        return res.status(400).json({ message: 'No PCD specified.' });
+      const pcd = await ZKEdDSAEventTicketPCDPackage.deserialize(req.body.pcd);
+      const nonce = req.session?.nonce
+
+      if (req.method !== 'POST') {
+         res.status(405).json({ message: 'Method Not Allowed' });
+         return
       }
 
-      const pcd = await ZKEdDSAEventTicketPCDPackage.deserialize(req.body.pcd);
+      if (!inputPCD) {
+         res.status(400).json({ message: 'No PCD specified.' });
+         return
+      }
 
       if (!(await ZKEdDSAEventTicketPCDPackage.verify(pcd))) {
         console.error(`[ERROR] ZK ticket PCD is not valid`);
-
         res.status(401).send("ZK ticket PCD is not valid");
         return;
       }
 
       if (!isEqualEdDSAPublicKey(zupassPublicKey, pcd.claim.signer)) {
         console.error(`[ERROR] PCD is not signed by Zupass`);
-
         res.status(401).send("PCD is not signed by Zupass");
+        return;
+      }
+      
+      if (!nonce) {
+        console.error(`[ERROR]  No nonce in session`);
+        res.status(401).send(" No nonce in session");
         return;
       }
 
       // CHECK WATERMARK IS SAME AS NONCE SAVED IN /validate-sso
-      if (pcd.claim.watermark.toString() !== req.session?.nonce) {
+      const bigIntNonce = BigInt('0x' + nonce);
+      
+      if (pcd.claim.watermark.toString() !== bigIntNonce.toString()) {
         console.error(`[ERROR] PCD watermark doesn't match`);
-
         res.status(401).send("PCD watermark doesn't match");
         return;
       }
 
       if (!pcd.claim.nullifierHash) {
         console.error(`[ERROR] PCD ticket nullifier has not been defined`);
-
         res.status(401).send("PCD ticket nullifer has not been defined");
         return;
       }
 
       if (nullifiers.has(pcd.claim.nullifierHash)) {
         console.error(`[ERROR] PCD ticket has already been used`);
-
         res.status(401).send("PCD ticket has already been used");
         return;
       }
@@ -95,27 +106,33 @@ export default withIronSessionApiRoute(
       // is the hash of the user's Semaphore identity and the
       // external nullifier (i.e. nonce).
       req.session.user = pcd.claim.nullifierHash;
-
-      const { encodedPayload, signature } = await generateSignature(pcd)
-
       await req.session.save();
 
-      res.status(200).send({
+      const { encodedPayload, signature } = await generateSignature(pcd, nonce)
+      if (!encodedPayload || !signature) {
+        res.status(500).json("Signature couldn't be generated");
+        return
+      }
+
+      res.send({
         attendeeEmail: pcd.claim.partialTicket.attendeeEmail,
         encodedPayload,
         sig: signature
-      });
+      })
+      return;
     } catch (error: any) {
       console.error(`[ERROR] ${error.message}`);
+      res.status(500).json(`Unknown error: ${error.message}`);
+      return;
+    }
+};
 
-      res.status(500).send(`Unknown error: ${error.message}`);
-    }
-  },
-  {
-    cookieName: process.env.SESSION_COOKIE_NAME as string,
-    password: process.env.SESSION_PASSWORD as string,
-    cookieOptions: {
-      secure: process.env.NODE_ENV === "production"
-    }
+const ironOptions = {
+  cookieName: process.env.SESSION_COOKIE_NAME as string,
+  password: process.env.SESSION_PASSWORD as string,
+  cookieOptions: {
+    secure: process.env.NODE_ENV === "production"
   }
-);
+}
+
+export default withIronSessionApiRoute(authRoute, ironOptions);

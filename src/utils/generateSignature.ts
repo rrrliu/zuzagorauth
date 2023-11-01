@@ -6,7 +6,7 @@ import crypto from 'crypto';
 import { matchTicketToType } from '../zupass-config';
 import { toUrlEncodedString } from "./toUrl";
 
-export const generateSignature = async (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Proof>)  => {
+export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Proof>, nonce: string)  => {
   try {
         // Extract the desired fields
         const attendeeEmail = pcd.claim.partialTicket.attendeeEmail;
@@ -14,24 +14,21 @@ export const generateSignature = async (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Gro
         const attendeeSemaphoreId = pcd.claim.partialTicket.attendeeSemaphoreId;
         const eventId = pcd.claim.partialTicket.eventId;
         const productId = pcd.claim.partialTicket.productId;
-
-        const nonce = pcd.claim.watermark.toString().substring(2)
-        console.log("🚀 ~ file: generateSignature.ts:18 ~ generateSignature ~ nonce:", nonce)
         
         // CHECK TICKET TYPE
         if (!eventId || !productId) {
           throw new Error("No product or event selected.");
         }
-          matchTicketToType(eventId, productId);
-        // const groups = `${eventName} General, ${eventName} ${ticketName}`
-        const groups = '';
+
+        const ticketType = matchTicketToType(eventId, productId);
+        const isResident = ticketType === "ZuzaluResident"  ||  ticketType === "ZuConnectResident"  ||  ticketType === "ZuzaluOrganizer";
 
         const payload = {
           nonce: nonce, 
           email: attendeeEmail,
           name: attendeeName,
           external_id: attendeeSemaphoreId,
-          add_groups: groups
+          add_groups: `$ticketType}, ${isResident && 'Resident'}`
         };
 
         // TODO: SIGN WITH PAYLOAD AND RETURN IT

@@ -1,6 +1,5 @@
 "use client";
 import { useZupass } from "@/zupass";
-import { ITicketData } from "@pcd/eddsa-ticket-pcd";
 import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useZupassPopupMessages } from '../PassportPopup';
@@ -8,9 +7,8 @@ import { OuterContainer, PageContainer, Title } from "../components/Zuzagora";
 import { Button } from "../components/core/Button";
 import { RippleLoader } from "../components/core/RippleLoader";
 import { InputParams } from '../types';
+import { authenticate } from "../utils/authenticate";
 import { validateSSO } from "../utils/validateSSO";
-
-type PartialTicketData = Partial<ITicketData>;
 
 export default function Home() {
   const [loading, setloading] = useState(true)
@@ -49,26 +47,21 @@ export default function Home() {
     })();
   }, [pcdStr]);
 
-  
+  const loginHandler = async () => {
+    setloading(true)
+    await login(inputParams)
+    setloading(false)
+  }
+
   const processProof = async (proof: string) => {
     const parsedProof = JSON.parse(proof);
     parsedProof.pcd = JSON.parse(parsedProof.pcd);
 
-    const response: any = await fetch("/api/auth/authenticate", {
-      method: "POST",
-      mode: "cors",
-      credentials: "include",
-      headers: {
-        "Access-Control-Allow-Origin": "*",
-        "Content-Type": "application/json"
-      },
-      body: pcdStr
-    });
-
+    const response = await authenticate(pcdStr)
     const returnSSOURL = inputParams?.return_sso_url;  // This is an example; use the actual return_sso_url from your payload.
 
     // Return
-    if (response.status === 200 && returnSSOURL && response) {
+    if (response && returnSSOURL) {
       const redirectURL = `${returnSSOURL}?sso=${response?.encodedPayload}&sig=${response?.sig}`;
       window.location.href = redirectURL;
     }
@@ -87,7 +80,7 @@ export default function Home() {
         <PageContainer>
           <Title>Welcome to Zuzagora!</Title>
           {/* <Subtitle>a Zupass forum</Subtitle> */}
-          <Button onClick={() => login(inputParams)}>Sign In</Button>
+          <Button onClick={loginHandler}>Sign In</Button>
         </PageContainer>
       </OuterContainer>
   );

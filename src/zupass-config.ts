@@ -1,11 +1,5 @@
-const ticketTypeNames = [
-  "ZuzaluResident",
-  "ZuzaluOrganizer",
-  "ZuzaluVisitor",
-  "ZuConnectResident"
-] as const;
-
-type TicketTypeName = (typeof ticketTypeNames)[number];
+import { ticketTypeNames } from './constants';
+import { TicketTypeName } from './types';
 
 /**
  * We want to match a ticket based on a pairing of event IDs and product IDs.
