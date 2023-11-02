@@ -47,12 +47,12 @@ export const Title = styled.h1`
 `;
 
 export const Subtitle = styled.h2`
-  font-size: 1.2em;
+  font-size: 0.8em;
   margin-bottom: 1em;
-  color: #777;
+  color: #000000;
 
   @media (min-width: 768px) {
-    font-size: 1.5em;
+    font-size: 0.8em;
   }
 `;
 

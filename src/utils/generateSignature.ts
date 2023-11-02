@@ -28,13 +28,12 @@ export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Pr
           email: attendeeEmail,
           name: attendeeName,
           external_id: attendeeSemaphoreId,
-          add_groups: `$ticketType}, ${isResident && 'Resident'}`
+          add_groups: isResident ? 'Resident' : 'Visitor'
         };
 
-        // TODO: SIGN WITH PAYLOAD AND RETURN IT
-        const urlPayload = toUrlEncodedString(payload)
-
         // Encoding payload to Base64
+        const urlPayload = toUrlEncodedString(payload)
+        console.log("🚀 ~ file: generateSignature.ts:36 ~ generateSignature ~ urlPayload:", urlPayload)
         const encodedPayload = Buffer.from(urlPayload).toString('base64');
 
         // Your secret should be stored safely, for example using environment variables

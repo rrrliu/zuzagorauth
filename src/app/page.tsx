@@ -11,7 +11,7 @@ import { authenticate } from "../utils/authenticate";
 import { validateSSO } from "../utils/validateSSO";
 
 export default function Home() {
-  const [loading, setloading] = useState(true)
+  const [loading, setloading] = useState(false)
   const [inputParams, setInputParams] = useState<InputParams | null>(null)
   const { login } = useZupass();
   const [pcdStr] = useZupassPopupMessages();
@@ -50,10 +50,10 @@ export default function Home() {
   const loginHandler = async () => {
     setloading(true)
     await login(inputParams)
-    setloading(false)
   }
 
   const processProof = async (proof: string) => {
+    try {
     const parsedProof = JSON.parse(proof);
     parsedProof.pcd = JSON.parse(parsedProof.pcd);
 
@@ -64,6 +64,13 @@ export default function Home() {
     if (response && returnSSOURL) {
       const redirectURL = `${returnSSOURL}?sso=${response?.encodedPayload}&sig=${response?.sig}`;
       window.location.href = redirectURL;
+    } else {
+      setloading(false);
+    }
+  } catch (error) {
+      console.error(error);
+      window.location.href = `${inputParams?.return_sso_url}`;
+      setloading(false);
     }
   }
 
@@ -79,7 +86,7 @@ export default function Home() {
       <OuterContainer>
         <PageContainer>
           <Title>Welcome to Zuzagora!</Title>
-          {/* <Subtitle>a Zupass forum</Subtitle> */}
+          {/* <Subtitle>Select a resident ticket if you have one.</Subtitle> */}
           <Button onClick={loginHandler}>Sign In</Button>
         </PageContainer>
       </OuterContainer>
