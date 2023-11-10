@@ -6,7 +6,7 @@ export function middleware(req: NextRequest) {
   // Check if the request is from the root domain
   if (host === 'zuzagora.com') {
     // Perform the redirect
-    return NextResponse.redirect('https://www.zuzagora.com/');
+    return NextResponse.redirect('https://www.zuzagora.com/', 301);
   }
 
   // If it's not the root domain, no redirect is performed
