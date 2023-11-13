@@ -10,7 +10,6 @@ export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Pr
   try {
         // Extract the desired fields
         const attendeeEmail = pcd.claim.partialTicket.attendeeEmail;
-        const attendeeName = pcd.claim.partialTicket.attendeeName;
         const attendeeSemaphoreId = pcd.claim.partialTicket.attendeeSemaphoreId;
         const eventId = pcd.claim.partialTicket.eventId;
         const productId = pcd.claim.partialTicket.productId;
@@ -26,7 +25,6 @@ export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Pr
         const payload = {
           nonce: nonce, 
           email: attendeeEmail,
-          name: attendeeName,
           external_id: attendeeSemaphoreId,
           add_groups: isResident ? 'Resident' : 'Visitor'
         };

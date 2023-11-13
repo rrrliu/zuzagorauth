@@ -84,7 +84,6 @@ async function login(inputParams: InputParams | null) {
       revealAttendeeEmail: true,
       revealEventId: true,
       revealProductId: true,
-      revealAttendeeName: true,
       revealAttendeeSemaphoreId: true
     },
     BigInt(bigIntNonce),
