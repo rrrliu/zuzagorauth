@@ -16,6 +16,16 @@ const nextConfig = {
   compiler: {
     styledComponents: true
   },
+  redirects: async () => [
+    {
+      source: '/:path*',
+      has: [{ type: 'host', value: 'zuzagora.com' }],
+      destination: 'https://www.zuzagora.com',
+      permanent: true
+    }
+  ]
 };
 
 module.exports = nextConfig;
+
+
