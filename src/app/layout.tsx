@@ -5,8 +5,8 @@ import "./globals.css";
 const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Zuzagora auth",
-  description: "Authenticate using Zupass"
+  title: "Forum for Zuzalians",
+  description: "A space to learn from each other and explore the frontier."
 };
 
 export default function RootLayout({
