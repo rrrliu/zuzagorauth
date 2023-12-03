@@ -6,7 +6,7 @@ const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
   title: "Forum for Zuzalians",
-  description: "A space to learn from each other and explore the frontier."
+  description: "A digital town square to learn from each other and explore the frontier."
 };
 
 export default function RootLayout({

@@ -68,7 +68,7 @@ function openZKEdDSAEventTicketPopup(
   >(ZUPASS_URL, popupUrl, ZKEdDSAEventTicketPCDPackage.name, args, {
     genericProveScreen: true,
     title: "Sign-In with Zupass",
-    description: "**If you have a RESIDENT ticket select that ticket for extra permissions.**"
+    description: "**Select a valid ticket to hop into the zuzaverse.**"
   });
 
   openZupassPopup(popupUrl, proofUrl);
