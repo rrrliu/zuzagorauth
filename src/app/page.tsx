@@ -1,5 +1,6 @@
 "use client";
 import { useZupass } from "@/zupass";
+import Link from 'next/link';
 import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from "react";
 import { useZupassPopupMessages } from '../PassportPopup';
@@ -85,9 +86,12 @@ export default function Home() {
   return (
       <OuterContainer>
         <PageContainer>
-          <Title>Welcome to Zuzagora!</Title>
-          {/* <Subtitle>Select a resident ticket if you have one.</Subtitle> */}
-          <Button onClick={loginHandler}>Sign In</Button>
+          <div className="flex flex-col" style={{ flexGrow: 1, justifyContent: 'center' }}>
+            <Title>Welcome to Zuzagora!</Title>
+            {/* <Subtitle>Select a resident ticket if you have one.</Subtitle> */}
+            <Button onClick={loginHandler}>Sign In</Button>
+          </div>
+          <Link href="https://t.me/petra0x" target="_blank" style={{ color: "var(--bg-dark-primary)", margin: 15 }}>I'm having trouble connecting</Link>
         </PageContainer>
       </OuterContainer>
   );
