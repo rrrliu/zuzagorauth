@@ -23,13 +23,14 @@ export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Pr
         const ticketType = matchTicketToType(eventId, productId);
         
         // TODO: Change input to enable multi-proofs
-        const groups = setDiscourseGroups(ticketType);
+        const addGroups = setDiscourseGroups(ticketType);
+        console.log("🚀 ~ generateSignature ~ addGroups:", addGroups)
         
         const payload = {
           nonce: nonce, 
           email: attendeeEmail,
           external_id: attendeeSemaphoreId,
-          add_groups: groups
+          add_groups: addGroups
         };
 
         // Encoding payload to Base64

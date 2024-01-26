@@ -1,10 +1,14 @@
 
 export const setDiscourseGroups = async (ticketType: string | undefined) => {
   try {
+    console.log("🚀 ~ setDiscourseGroups ~ ticketType:", ticketType)
 
     const isZuMontenegroAttendee = ticketType === "ZuzaluResident" || ticketType === "ZuzaluVisitor" || ticketType === "ZuzaluOrganizer";
+    console.log("🚀 ~ setDiscourseGroups ~ isZuMontenegroAttendee:", isZuMontenegroAttendee)
     const isZuConnectAttendee = ticketType === "ZuConnectResident";
+    console.log("🚀 ~ setDiscourseGroups ~ isZuConnectAttendee:", isZuConnectAttendee)
     const isVitaliaAttendee = ticketType === "VitaliaResident";
+    console.log("🚀 ~ setDiscourseGroups ~ isVitaliaAttendee:", isVitaliaAttendee)
     
     let attendeeGroups = [];
     
@@ -19,6 +23,7 @@ export const setDiscourseGroups = async (ticketType: string | undefined) => {
     }
     
     const addGroups = attendeeGroups.join(', ');
+    console.log("🚀 ~ setDiscourseGroups ~ addGroups:", addGroups)
     
     return addGroups;
   } catch (error) {
