@@ -1,5 +1,5 @@
 
-export const setDiscourseGroups = async (ticketType: string | undefined) => {
+export const setDiscourseGroups = (ticketType: string | undefined) => {
   try {
     console.log("🚀 ~ setDiscourseGroups ~ ticketType:", ticketType)
 
