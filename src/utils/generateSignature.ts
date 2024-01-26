@@ -1,4 +1,5 @@
 // generateSignature.ts
+import setDiscourseGroups from '@/utils/setDiscourseGroups';
 import { PCD } from '@pcd/pcd-types';
 import { ZKEdDSAEventTicketPCDClaim } from '@pcd/zk-eddsa-event-ticket-pcd';
 import { Groth16Proof } from '@zk-kit/groth16';
@@ -20,13 +21,15 @@ export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Pr
         }
 
         const ticketType = matchTicketToType(eventId, productId);
-        const isResident = ticketType === "ZuzaluResident"  ||  ticketType === "ZuConnectResident"  ||  ticketType === "ZuzaluOrganizer";
-
+        
+        // TODO: Change input to enable multi-proofs
+        const groups = setDiscourseGroups(ticketType);
+        
         const payload = {
           nonce: nonce, 
           email: attendeeEmail,
           external_id: attendeeSemaphoreId,
-          add_groups: isResident ? 'Resident' : 'Visitor'
+          add_groups: groups
         };
 
         // Encoding payload to Base64
@@ -49,7 +52,7 @@ export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Pr
     
         console.log("Encoded Payload:", encodedPayload);
         console.log("Signature:", signature);
-      return { encodedPayload, signature };
+      return { encodedPayload, signature, ticketType };
   } catch (error) {
       console.error('There was an error generating the signature:', error);
       throw new Error("There was an error generating the signature.");

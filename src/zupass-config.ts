@@ -50,6 +50,12 @@ const ticketTypes: Record<
       eventId: "a6109324-7ca0-4198-9583-77962d1b9d53",
       productId: "a6109324-7ca0-4198-9583-77962d1b9d53"
     }
+  ],
+  VitaliaResident: [
+    {
+      eventId: "9ccc53cb-3b0a-415b-ab0d-76cfa21c72ac",
+      productId: "cd3f2b06-e520-4eff-b9ed-c52365c60848"
+    }
   ]
 };
 

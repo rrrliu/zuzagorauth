@@ -8,10 +8,8 @@ import { NextApiRequest, NextApiResponse } from "next";
 
 const nullifiers = new Set<string>();
 
-const zupassPublicKey: [string, string] = [
-  "05e0c4e8517758da3a26c80310ff2fe65b9f85d89dfc9c80e6d0b6477f88173e",
-  "29ae64b615383a0ebb1bc37b3a642d82d37545f0f5b1444330300e4c4eedba3f"
-];
+const zupassPublicKey: [string, string] = ["05e0c4e8517758da3a26c80310ff2fe65b9f85d89dfc9c80e6d0b6477f88173e","29ae64b615383a0ebb1bc37b3a642d82d37545f0f5b1444330300e4c4eedba3f"];
+const vitaliaPublicKey: [string, string] = ["0d3388a18b89dd012cb965267ab959a6ca68f7e79abfdd5de5e3e80f86821a0d","0babbc67ab5da6c9245137ae75461f64a90789ae5abf3737510d5442bbfa3113"];
 
 declare module "iron-session" {
   interface IronSessionData {
@@ -39,12 +37,6 @@ const authRoute = async (req: NextApiRequest, res: NextApiResponse) => {
       if (!(await ZKEdDSAEventTicketPCDPackage.verify(pcd))) {
         console.error(`[ERROR] ZK ticket PCD is not valid`);
         res.status(401).send("ZK ticket PCD is not valid");
-        return;
-      }
-
-      if (!isEqualEdDSAPublicKey(zupassPublicKey, pcd.claim.signer)) {
-        console.error(`[ERROR] PCD is not signed by Zupass`);
-        res.status(401).send("PCD is not signed by Zupass");
         return;
       }
       
@@ -108,10 +100,18 @@ const authRoute = async (req: NextApiRequest, res: NextApiResponse) => {
       req.session.user = pcd.claim.nullifierHash;
       await req.session.save();
 
-      const { encodedPayload, signature } = await generateSignature(pcd, nonce)
+      const { encodedPayload, signature, ticketType } = await generateSignature(pcd, nonce)
       if (!encodedPayload || !signature) {
         res.status(500).json("Signature couldn't be generated");
         return
+      }
+
+      const publicKey = ticketType === 'VitaliaResident' ? vitaliaPublicKey : zupassPublicKey
+
+      if (!isEqualEdDSAPublicKey(publicKey, pcd.claim.signer)) {
+        console.error(`[ERROR] PCD is not signed by Zupass`);
+        res.status(401).send("PCD is not signed by Zupass");
+        return;
       }
 
       res.send({
