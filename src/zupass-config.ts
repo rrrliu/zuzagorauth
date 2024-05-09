@@ -57,7 +57,7 @@ const ticketTypes: Record<
       productId: "cd3f2b06-e520-4eff-b9ed-c52365c60848"
     }
   ],
-  ZuGeorgia: [
+  ZuVillage: [
     {
       productId: "aecf9f84-b92f-5b40-8541-cbb48f4d6267",
       eventId: "6f5f194b-97b5-5fe9-994d-0998f3eacc75",
@@ -75,7 +75,7 @@ const vitaliaPublicKey: [string, string] = [
   "0d3388a18b89dd012cb965267ab959a6ca68f7e79abfdd5de5e3e80f86821a0d",
   "0babbc67ab5da6c9245137ae75461f64a90789ae5abf3737510d5442bbfa3113"
 ];
-const zuGeorgiaPublicKey: [string, string] = [
+const ZuVillagePublicKey: [string, string] = [
   "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
   "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
 ];
@@ -88,8 +88,8 @@ export const publicKey = (ticketType: string | undefined) => {
       return vitaliaPublicKey;
     case ('ZuConnectResident' || 'ZuzaluVisitor' || 'ZuzaluOrganizer' || 'ZuConnectResident'):
       return zupassPublicKey
-    case 'ZuGeorgia':
-      return zuGeorgiaPublicKey;
+    case 'ZuVillage':
+      return ZuVillagePublicKey;
     default:
       break;
   }
