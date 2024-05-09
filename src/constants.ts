@@ -26,6 +26,7 @@ export const EVERYONE_SEMAPHORE_GROUP_URL = IS_PROD
     "ZuzaluOrganizer",
     "ZuzaluVisitor",
     "ZuConnectResident",
-    "VitaliaResident"
+    "VitaliaResident",
+    "ZuGeorgia"
   ] as const;
   

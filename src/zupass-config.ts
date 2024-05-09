@@ -13,7 +13,7 @@ import { TicketTypeName } from './types';
  */
 const ticketTypes: Record<
   TicketTypeName,
-  Array<{ eventId: string; productId: string }>
+  Array<{ eventId: string; productId: string, eventName?: string, productName?: string }>
 > = {
   ZuzaluResident: [
     {
@@ -56,8 +56,44 @@ const ticketTypes: Record<
       eventId: "9ccc53cb-3b0a-415b-ab0d-76cfa21c72ac",
       productId: "cd3f2b06-e520-4eff-b9ed-c52365c60848"
     }
-  ]
+  ],
+  ZuGeorgia: [
+    {
+      productId: "aecf9f84-b92f-5b40-8541-cbb48f4d6267",
+      eventId: "6f5f194b-97b5-5fe9-994d-0998f3eacc75",
+      eventName: "ZuVillage Georgia",
+      productName: "Contributor"
+    }
+  ],
 };
+
+const zupassPublicKey: [string, string] = [
+  "05e0c4e8517758da3a26c80310ff2fe65b9f85d89dfc9c80e6d0b6477f88173e",
+  "29ae64b615383a0ebb1bc37b3a642d82d37545f0f5b1444330300e4c4eedba3f"
+];
+const vitaliaPublicKey: [string, string] = [
+  "0d3388a18b89dd012cb965267ab959a6ca68f7e79abfdd5de5e3e80f86821a0d",
+  "0babbc67ab5da6c9245137ae75461f64a90789ae5abf3737510d5442bbfa3113"
+];
+const zuGeorgiaPublicKey: [string, string] = [
+  "1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003",
+  "10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"
+];
+
+
+// TODO: Make this programatic
+export const publicKey = (ticketType: string | undefined) => {
+  switch (ticketType) {
+    case 'VitaliaResident':
+      return vitaliaPublicKey;
+    case ('ZuConnectResident' || 'ZuzaluVisitor' || 'ZuzaluOrganizer' || 'ZuConnectResident'):
+      return zupassPublicKey
+    case 'ZuGeorgia':
+      return zuGeorgiaPublicKey;
+    default:
+      break;
+  }
+} 
 
 // Map the above data structure into a simple array of event IDs.
 export const supportedEvents = Object.values(ticketTypes).flatMap((items) =>
