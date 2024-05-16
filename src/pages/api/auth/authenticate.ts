@@ -1,6 +1,6 @@
 // pages/api/auth/authenticate.ts
 import { generateSignature } from "@/utils/generateSignature";
-import { publicKey, supportedEvents } from "@/zupass-config";
+import { supportedEvents, whitelistedTickets } from "@/zupass-config";
 import { isEqualEdDSAPublicKey } from "@pcd/eddsa-pcd";
 import { ZKEdDSAEventTicketPCDPackage } from "@pcd/zk-eddsa-event-ticket-pcd";
 import { withIronSessionApiRoute } from "iron-session/next";
@@ -103,8 +103,13 @@ const authRoute = async (req: NextApiRequest, res: NextApiResponse) => {
         return
       }
 
-      // @ts-ignore 
-      if (!isEqualEdDSAPublicKey(publicKey(ticketType), pcd.claim.signer)) {
+      if (ticketType === undefined) return;
+
+      const tickets = whitelistedTickets[ticketType];
+      // All event's within the same Ticket Type share the same public keys, so we select the first one.
+      const publicKey = tickets[0].publicKey; 
+      
+      if (!isEqualEdDSAPublicKey(publicKey, pcd.claim.signer)) {
         console.error(`[ERROR] PCD is not signed by Zupass`);
         res.status(401).send("PCD is not signed by Zupass");
         return;

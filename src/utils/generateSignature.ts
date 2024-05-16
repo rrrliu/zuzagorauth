@@ -1,5 +1,4 @@
 // generateSignature.ts
-import setDiscourseGroups from '@/utils/setDiscourseGroups';
 import { PCD } from '@pcd/pcd-types';
 import { ZKEdDSAEventTicketPCDClaim } from '@pcd/zk-eddsa-event-ticket-pcd';
 import { Groth16Proof } from '@zk-kit/groth16';
@@ -23,7 +22,7 @@ export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Pr
         const ticketType = matchTicketToType(eventId, productId);
         
         // TODO: Change input to enable multi-proofs
-        const groups = setDiscourseGroups(ticketType);
+        const groups = [ticketType];
         
         const payload = {
           nonce: nonce, 
