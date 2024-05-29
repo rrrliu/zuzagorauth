@@ -19,8 +19,8 @@ const nextConfig = {
   redirects: async () => [
     {
       source: '/:path*',
-      has: [{ type: 'host', value: 'zuzagora.com' }],
-      destination: 'https://www.zuzagora.com',
+      has: [{ type: 'host', value: 'agora.city' }],
+      destination: 'https://www.agora.city',
       permanent: true
     }
   ]

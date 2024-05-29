@@ -1,4 +1,4 @@
-## Zuzagora
+## Agora City Auth
 
 This serves as an SSO auth service to create a Zupass-gated Discourse server.
 

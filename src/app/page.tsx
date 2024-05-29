@@ -87,7 +87,7 @@ export default function Home() {
       <OuterContainer>
         <PageContainer>
           <div className="flex flex-col" style={{ flexGrow: 1, justifyContent: 'center' }}>
-            <Title>Welcome to Zuzagora!</Title>
+            <Title>Welcome to Agora City!</Title>
             {/* <Subtitle>Select a resident ticket if you have one.</Subtitle> */}
             <Button onClick={loginHandler}>Sign In</Button>
           </div>
