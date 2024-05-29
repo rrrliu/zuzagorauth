@@ -85,25 +85,25 @@ export const whitelistedTickets: Record<
       productName: "Resident"
     }
   ],
-  ZuVillage: [
-    {
-      productId: "aecf9f84-b92f-5b40-8541-cbb48f4d6267",
-      publicKey: ["1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003","10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"],
-      eventId: "6f5f194b-97b5-5fe9-994d-0998f3eacc75",
-      eventName: "ZuVillage Georgia",
-      productName: "Contributor"
-    }
-  ],
-  Esmeralda: [
-    {
-      productId: "",
-      pcdType: "eddsa-ticket-pcd",
-      publicKey: ["1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003","10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"],
-      eventId: "21c7db2e-08e3-4234-9a6e-386a592d63c8",
-      eventName: "Edge Esmeralda",
-      productName: "Resident"
-    }
-  ],
+  // ZuVillage: [
+  //   {
+  //     productId: "aecf9f84-b92f-5b40-8541-cbb48f4d6267",
+  //     publicKey: ["1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003","10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"],
+  //     eventId: "6f5f194b-97b5-5fe9-994d-0998f3eacc75",
+  //     eventName: "ZuVillage Georgia",
+  //     productName: "Contributor"
+  //   }
+  // ],
+  // Esmeralda: [
+  //   {
+  //     productId: "",
+  //     pcdType: "eddsa-ticket-pcd",
+  //     publicKey: ["1ebfb986fbac5113f8e2c72286fe9362f8e7d211dbc68227a468d7b919e75003","10ec38f11baacad5535525bbe8e343074a483c051aa1616266f3b1df3fb7d204"],
+  //     eventId: "21c7db2e-08e3-4234-9a6e-386a592d63c8",
+  //     eventName: "Edge Esmeralda",
+  //     productName: "Resident"
+  //   }
+  // ],
   AgoraCore: [
     {
       pcdType: "eddsa-ticket-pcd",
