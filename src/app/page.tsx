@@ -1,23 +1,23 @@
 "use client";
 import { useZupass } from "@/zupass";
-import Link from 'next/link';
-import { ReadonlyURLSearchParams, useSearchParams } from 'next/navigation';
+import Link from "next/link";
+import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useZupassPopupMessages } from '../PassportPopup';
+import { useZupassPopupMessages } from "../PassportPopup";
 import { OuterContainer, PageContainer, Title } from "../components/Zuzagora";
 import { Button } from "../components/core/Button";
 import { RippleLoader } from "../components/core/RippleLoader";
-import { InputParams } from '../types';
+import { InputParams } from "../types";
 import { authenticate } from "../utils/authenticate";
 import { validateSSO } from "../utils/validateSSO";
 
 export default function Home() {
-  const [loading, setloading] = useState(false)
-  const [inputParams, setInputParams] = useState<InputParams | null>(null)
+  const [loading, setloading] = useState(false);
+  const [inputParams, setInputParams] = useState<InputParams | null>(null);
   const { login } = useZupass();
   const [pcdStr] = useZupassPopupMessages();
 
-  const searchParams = useSearchParams()
+  const searchParams = useSearchParams();
 
   useEffect(() => {
     async function startValidation() {
@@ -28,14 +28,14 @@ export default function Home() {
           // TODO: trigger alert if it's not valid
           if (response?.isValid) {
             setloading(false);
-            setInputParams({...params, ...response})
+            setInputParams({ ...params, ...response });
           }
         }
       } catch (error) {
         console.error("Error fetching data:", error);
       }
     }
-    
+
     startValidation();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams]);
@@ -43,74 +43,81 @@ export default function Home() {
   useEffect(() => {
     (async () => {
       if (pcdStr) {
-        processProof(pcdStr)
+        processProof(pcdStr);
       }
     })();
   }, [pcdStr]);
 
   const loginHandler = async () => {
-    setloading(true)
-    await login(inputParams)
-  }
+    setloading(true);
+    await login(inputParams);
+  };
 
   const processProof = async (proof: string) => {
     try {
-    const parsedProof = JSON.parse(proof);
-    parsedProof.pcd = JSON.parse(parsedProof.pcd);
+      const parsedProof = JSON.parse(proof);
+      parsedProof.pcd = JSON.parse(parsedProof.pcd);
+      const response = await authenticate(pcdStr);
+      const returnSSOURL = inputParams?.return_sso_url; // This is an example; use the actual return_sso_url from your payload.
 
-    const response = await authenticate(pcdStr)
-    const returnSSOURL = inputParams?.return_sso_url;  // This is an example; use the actual return_sso_url from your payload.
-
-    // Return
-    if (response && returnSSOURL) {
-      const redirectURL = `${returnSSOURL}?sso=${response?.encodedPayload}&sig=${response?.sig}`;
-      window.location.href = redirectURL;
-    } else {
-      setloading(false);
-    }
-  } catch (error) {
+      // Return
+      if (response && returnSSOURL) {
+        const redirectURL = `${returnSSOURL}?sso=${response?.encodedPayload}&sig=${response?.sig}`;
+        window.location.href = redirectURL;
+      } else {
+        setloading(false);
+      }
+    } catch (error) {
       console.error(error);
       window.location.href = `${inputParams?.return_sso_url}`;
       setloading(false);
     }
-  }
+  };
 
   if (loading) {
     return (
       <OuterContainer>
         <RippleLoader />
       </OuterContainer>
-    )
+    );
   }
-    
+
   return (
-      <OuterContainer>
-        <PageContainer>
-          <div className="flex flex-col" style={{ flexGrow: 1, justifyContent: 'center' }}>
-            <Title>Welcome to Agora City!</Title>
-            {/* <Subtitle>Select a resident ticket if you have one.</Subtitle> */}
-            <Button onClick={loginHandler}>Sign In</Button>
-          </div>
-          <Link href="https://t.me/petra0x" target="_blank" style={{ color: "var(--bg-dark-primary)", margin: 15 }}>I'm having trouble connecting</Link>
-        </PageContainer>
-      </OuterContainer>
+    <OuterContainer>
+      <PageContainer>
+        <div
+          className="flex flex-col"
+          style={{ flexGrow: 1, justifyContent: "center" }}
+        >
+          <Title>Welcome to Agora City!</Title>
+          {/* <Subtitle>Select a resident ticket if you have one.</Subtitle> */}
+          <Button onClick={loginHandler}>Sign In</Button>
+        </div>
+        <Link
+          href="https://t.me/petra0x"
+          target="_blank"
+          style={{ color: "var(--bg-dark-primary)", margin: 15 }}
+        >
+          I'm having trouble connecting
+        </Link>
+      </PageContainer>
+    </OuterContainer>
   );
 }
-
 
 const getParams = (searchParams: ReadonlyURLSearchParams | null) => {
   // Initialize the final object
   const finalObject: any = {};
   // Check for 'sso' parameter
-  if (searchParams?.has('sso')) {
-    const ssoString = searchParams?.get('sso')
+  if (searchParams?.has("sso")) {
+    const ssoString = searchParams?.get("sso");
     finalObject.sso = ssoString;
   }
 
   // Check for 'sig' parameter
-  if (searchParams?.has('sig')) {
-    const sigString = searchParams?.get('sig');
+  if (searchParams?.has("sig")) {
+    const sigString = searchParams?.get("sig");
     finalObject.sig = sigString;
   }
   return finalObject;
-}
+};
