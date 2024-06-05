@@ -1,5 +1,4 @@
-import { ZuAuthArgs, zuAuthPopup } from "@pcd/zuauth";
-import { authenticate } from "@pcd/zuauth/server";
+import { ZuAuthArgs, authenticate, zuAuthPopup } from "@pcd/zuauth";
 import { InputParams, TicketTypeName } from "./types";
 import { whitelistedTickets } from "./zupass-config";
 
