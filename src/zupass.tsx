@@ -6,7 +6,7 @@ async function login(inputParams: InputParams | null) {
   if (inputParams === null) return;
 
   const bigIntNonce = BigInt("0x" + inputParams.nonce.toString());
-  const watermark = bigIntNonce;
+  const watermark = bigIntNonce.toString();
 
   // Ensure the tickets are formatted correctly
   const config = Object.entries(whitelistedTickets).flatMap(
@@ -48,7 +48,7 @@ async function login(inputParams: InputParams | null) {
   const result = await zuAuthPopup(args);
   if (result.type === "pcd") {
     try {
-      const pcd = await authenticate(result.pcdStr, watermark);
+      const pcd = await authenticate(result.pcdStr, watermark, config);
       console.log("Got PCD data: ", pcd.claim.partialTicket);
     } catch (e) {
       console.log("Authentication failed: ", e);
