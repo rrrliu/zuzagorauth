@@ -1,63 +1,146 @@
-import { ZuAuthArgs, authenticate, zuAuthPopup } from "@pcd/zuauth";
-import { InputParams, TicketTypeName } from "./types";
+import { EdDSATicketPCDPackage } from "@pcd/eddsa-ticket-pcd";
+import {
+  constructZupassPcdGetRequestUrl,
+  openZupassPopup
+} from "@pcd/passport-interface";
+import { ArgumentTypeName } from "@pcd/pcd-types";
+import { SemaphoreIdentityPCDPackage } from "@pcd/semaphore-identity-pcd";
+import { generateSnarkMessageHash } from "@pcd/util";
+import {
+  EdDSATicketFieldsToReveal,
+  ZKEdDSAEventTicketPCDArgs,
+  ZKEdDSAEventTicketPCDPackage
+} from "@pcd/zk-eddsa-event-ticket-pcd";
+import { ZUPASS_URL } from "./constants";
+import { InputParams } from './types';
 import { whitelistedTickets } from "./zupass-config";
+
+const watermark = generateSnarkMessageHash(process.env.NEXT_PUBLIC_WATERMARK);
+const externalNullifier = generateSnarkMessageHash("consumer-client").toString();
+
+
+const fieldsToReveal = {
+      revealAttendeeEmail: true,
+      revealEventId: true,
+      revealProductId: true,
+      revealAttendeeSemaphoreId: true
+};
+const revealFieldsUserProvided = true;
+
+const objectKeys = Object.keys(whitelistedTickets);
+// @ts-ignore
+const events = objectKeys.map(key => whitelistedTickets[key]);
+
+const validEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId));
+const displayValidEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId));
+const displayValidProductIds = events.map(event => event.map((product: { productId: any; }) => product.productId));
+
+/**
+ * Opens a Zupass popup to prove a prove a ZKEdDSATicketPCD.
+ *
+ * @param urlToZupassWebsite URL of the Zupass website
+ * @param popupUrl Route where the useZupassPopupSetup hook is being served from
+ * @param fieldsToReveal Ticket data fields that site is requesting for user to reveal
+ * @param fieldsToRevealUserProvided Whether the user can customize the fields to reveal
+ * @param watermark Challenge to watermark this proof to
+ * @param externalNullifier Optional unique identifier for this ZKEdDSAEventTicketPCD
+ */
+export function openZKEdDSAEventTicketPopup(
+  urlToZupassWebsite: string,
+  popupUrl: string,
+  fieldsToReveal: EdDSATicketFieldsToReveal,
+  fieldsToRevealUserProvided: boolean,
+  watermark: bigint,
+  validEventIds: string[],
+  displayValidEventIds: string[],
+  displayValidProductIds: string[],
+  externalNullifier?: string
+): void {
+  const args: ZKEdDSAEventTicketPCDArgs = {
+    ticket: {
+      argumentType: ArgumentTypeName.PCD,
+      pcdType: EdDSATicketPCDPackage.name,
+      value: undefined,
+      userProvided: true,
+      displayName: "Ticket(s)",
+      validatorParams: {
+        eventIds: displayValidEventIds,
+        productIds: displayValidProductIds,
+        notFoundMessage: "No eligible PCDs found"
+      }
+    },
+    identity: {
+      argumentType: ArgumentTypeName.PCD,
+      pcdType: SemaphoreIdentityPCDPackage.name,
+      value: undefined,
+      userProvided: true
+    },
+    validEventIds: {
+      argumentType: ArgumentTypeName.StringArray,
+      value: validEventIds.length !== 0 ? validEventIds : undefined,
+      userProvided: false
+    },
+    fieldsToReveal: {
+      argumentType: ArgumentTypeName.ToggleList,
+      value: fieldsToReveal,
+      userProvided: fieldsToRevealUserProvided
+    },
+    externalNullifier: {
+      argumentType: ArgumentTypeName.BigInt,
+      value: externalNullifier,
+      userProvided: false
+    },
+    watermark: {
+      argumentType: ArgumentTypeName.BigInt,
+      value: watermark.toString(),
+      userProvided: false
+    }
+  };
+  console.log("🚀 ~ ZUPASS_URL:", urlToZupassWebsite)
+
+  const proofUrl = constructZupassPcdGetRequestUrl<
+  typeof ZKEdDSAEventTicketPCDPackage
+  >(
+    urlToZupassWebsite,
+    popupUrl,
+    ZKEdDSAEventTicketPCDPackage.name,
+    args,
+    {
+      genericProveScreen: true,
+      title: "ZKEdDSA Proof",
+      description: "zkeddsa ticket pcd request",
+      // @ts-ignore
+      multi: true
+      },
+      true
+      );
+      
+  console.log("🚀 ~ proofUrl:", proofUrl)
+  openZupassPopup(popupUrl, proofUrl);
+}
+
+
 
 async function login(inputParams: InputParams | null) {
   if (inputParams === null) return;
+  console.log("🚀 ~ login ~ inputParams:", inputParams)
 
-  const bigIntNonce = BigInt("0x" + inputParams.nonce.toString());
-  const watermark = bigIntNonce.toString();
-
-  // Ensure the tickets are formatted correctly
-  const config = Object.entries(whitelistedTickets).flatMap(
-    ([ticketType, tickets]) =>
-      tickets
-        .map((ticket) => {
-          if (ticket.eventId && ticket.productId) {
-            return {
-              pcdType: "eddsa-ticket-pcd" as const,
-              ticketType: ticketType as TicketTypeName,
-              eventId: ticket.eventId,
-              productId: ticket.productId,
-              eventName: ticket.eventName || "",
-              productName: ticket.productName || "",
-              publicKey: ticket.publicKey
-            };
-          }
-          console.error("Invalid ticket format:", ticket);
-          return null;
-        })
-        .filter(
-          (ticket): ticket is NonNullable<typeof ticket> => ticket !== null
-        )
-  );
-
-  const args: ZuAuthArgs = {
-    fieldsToReveal: {
-      revealAttendeeEmail: true,
-      revealAttendeeName: true,
-      revealEventId: true,
-      revealProductId: true
-    },
+  openZKEdDSAEventTicketPopup(
+    ZUPASS_URL,
+    window.location.origin + "/popup/",
+    fieldsToReveal,
+    revealFieldsUserProvided,
     watermark,
-    config,
-    proofTitle: "Sign-In with Zupass",
-    proofDescription: "**Select a valid ticket to hop into the zuzaverse.**"
-  };
-
-  const result = await zuAuthPopup(args);
-  if (result.type === "pcd") {
-    try {
-      const pcd = await authenticate(result.pcdStr, watermark, config);
-      console.log("Got PCD data: ", pcd.claim.partialTicket);
-    } catch (e) {
-      console.log("Authentication failed: ", e);
-    }
-  }
+    validEventIds,
+    displayValidEventIds,
+    displayValidProductIds,
+    externalNullifier
+  )
 }
 
 export function useZupass(): {
   login: (params: InputParams | null) => Promise<void>;
 } {
+
   return { login };
 }

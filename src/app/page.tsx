@@ -16,7 +16,7 @@ export default function Home() {
   const [inputParams, setInputParams] = useState<InputParams | null>(null);
   const { login } = useZupass();
   const [pcdStr, _pendingPCDStr, multiPCDs] = useZupassPopupMessages();
-  
+
   console.log("🚀 ~ Home ~ multiPCDs:", multiPCDs)
   
   const searchParams = useSearchParams();
