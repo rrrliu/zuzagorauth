@@ -15,26 +15,6 @@ import { ZUPASS_URL } from "./constants";
 import { InputParams } from './types';
 import { whitelistedTickets } from "./zupass-config";
 
-const watermark = generateSnarkMessageHash(process.env.NEXT_PUBLIC_WATERMARK);
-const externalNullifier = generateSnarkMessageHash("consumer-client").toString();
-
-
-const fieldsToReveal = {
-      revealAttendeeEmail: true,
-      revealEventId: true,
-      revealProductId: true,
-      revealAttendeeSemaphoreId: true
-};
-const revealFieldsUserProvided = true;
-
-const objectKeys = Object.keys(whitelistedTickets);
-// @ts-ignore
-const events = objectKeys.map(key => whitelistedTickets[key]);
-
-const validEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId));
-const displayValidEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId));
-const displayValidProductIds = events.map(event => event.map((product: { productId: any; }) => product.productId));
-
 /**
  * Opens a Zupass popup to prove a prove a ZKEdDSATicketPCD.
  *
@@ -123,7 +103,58 @@ export function openZKEdDSAEventTicketPopup(
 
 async function login(inputParams: InputParams | null) {
   if (inputParams === null) return;
-  console.log("🚀 ~ login ~ inputParams:", inputParams)
+
+  const watermark = generateSnarkMessageHash(process.env.NEXT_PUBLIC_WATERMARK);
+  const externalNullifier = generateSnarkMessageHash("consumer-client").toString();
+
+  const fieldsToReveal = {
+    revealAttendeeEmail: true,
+    revealEventId: true,
+    revealProductId: true,
+    revealAttendeeSemaphoreId: true
+  };
+  const revealFieldsUserProvided = true;
+
+  const objectKeys = Object.keys(whitelistedTickets);
+  // @ts-ignore
+  const events = objectKeys.map(key => whitelistedTickets[key]);
+
+
+  const validEventIds = (events: any[]) => {
+    return events.reduce((acc, event) => {
+      event.forEach((product: { eventId: string; }) => {
+        if (!acc.includes(product.eventId)) {
+          acc.push(product.eventId);
+        }
+      });
+      return acc;
+    }, []);
+  };
+
+  const displayValidEventIds = (events: any[]) => {
+    return events.reduce((acc, event) => {
+      event.forEach((product: { eventId: string; }) => {
+        if (!acc.includes(product.eventId)) {
+          acc.push(product.eventId);
+        }
+      });
+      return acc;
+    }, []);
+  };
+
+  const displayValidProductIds = (events: any[]) => {
+    return events.reduce((acc, event) => {
+      event.forEach((product: { productId: string; }) => {
+        if (!acc.includes(product.productId)) {
+          acc.push(product.productId);
+        }
+      });
+      return acc;
+    }, []);
+  };
+  
+  console.log("🚀 ~ login ~ displayValidProductIds:", displayValidProductIds(events))
+  console.log("🚀 ~ login ~ validEventIds:", validEventIds(events))
 
   openZKEdDSAEventTicketPopup(
     ZUPASS_URL,
@@ -131,9 +162,9 @@ async function login(inputParams: InputParams | null) {
     fieldsToReveal,
     revealFieldsUserProvided,
     watermark,
-    validEventIds,
-    displayValidEventIds,
-    displayValidProductIds,
+    validEventIds(events),
+    displayValidEventIds(events),
+    displayValidProductIds(events),
     externalNullifier
   )
 }
