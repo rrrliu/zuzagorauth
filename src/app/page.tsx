@@ -1,6 +1,6 @@
 "use client";
 import { useZupass } from "@/zupass";
-import { useZupassPopupMessages } from "@pcd/passport-interface";
+import { useZupassPopupMessages, useZupassPopupSetup } from "@pcd/passport-interface";
 import Link from "next/link";
 import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
@@ -15,7 +15,9 @@ export default function Home() {
   const [loading, setloading] = useState(false);
   const [inputParams, setInputParams] = useState<InputParams | null>(null);
   const { login } = useZupass();
-  
+
+  const error = useZupassPopupSetup();
+
   // @ts-ignore
   const [pcdStr, _pendingPCDStr, multiPCDs] = useZupassPopupMessages();
   console.log("🚀 ~ Home ~ pcdStr:", pcdStr)
