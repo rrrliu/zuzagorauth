@@ -76,7 +76,6 @@ export function openZKEdDSAEventTicketPopup(
       userProvided: false
     }
   };
-  console.log("🚀 ~ ZUPASS_URL:", urlToZupassWebsite)
 
   const proofUrl = constructZupassPcdGetRequestUrl<
   typeof ZKEdDSAEventTicketPCDPackage
@@ -122,8 +121,6 @@ async function login(inputParams: InputParams | null) {
   const validEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
   const displayValidEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
   const displayValidProductIds = events.map(event => event.map((product: { productId: any; }) => product.productId)).flat();
-  
-  console.log("🚀 ~ login ~ validEventIds:", validEventIds)
 
   openZKEdDSAEventTicketPopup(
     ZUPASS_URL,

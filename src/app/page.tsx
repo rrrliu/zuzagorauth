@@ -1,9 +1,9 @@
 "use client";
 import { useZupass } from "@/zupass";
+import { useZupassPopupMessages } from "@pcd/passport-interface";
 import Link from "next/link";
 import { ReadonlyURLSearchParams, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import { useZupassPopupMessages } from "../PassportPopup";
 import { OuterContainer, PageContainer, Title } from "../components/Zuzagora";
 import { Button } from "../components/core/Button";
 import { RippleLoader } from "../components/core/RippleLoader";
@@ -15,8 +15,10 @@ export default function Home() {
   const [loading, setloading] = useState(false);
   const [inputParams, setInputParams] = useState<InputParams | null>(null);
   const { login } = useZupass();
+  // @ts-ignore
   const [pcdStr, _pendingPCDStr, multiPCDs] = useZupassPopupMessages();
-
+  console.log("🚀 ~ Home ~ pcdStr:", pcdStr)
+  console.log("🚀 ~ Home ~ _pendingPCDStr:", _pendingPCDStr)
   console.log("🚀 ~ Home ~ multiPCDs:", multiPCDs)
   
   const searchParams = useSearchParams();
