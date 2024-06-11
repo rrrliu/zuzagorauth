@@ -89,12 +89,13 @@ export default function Home() {
           className="flex flex-col"
           style={{ flexGrow: 1, justifyContent: "center" }}
         >
+          <img className="logo-image" src="agora-logo.png" alt="agora logo" />
           <Title>Welcome to Agora City!</Title>
           {/* <Subtitle>Select a resident ticket if you have one.</Subtitle> */}
           <Button onClick={loginHandler}>Sign In</Button>
         </div>
         <Link
-          href="https://t.me/petra0x"
+          href="https://t.me/petrafran"
           target="_blank"
           style={{ color: "var(--bg-dark-primary)", margin: 15 }}
         >

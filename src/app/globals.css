@@ -185,6 +185,15 @@ img {
   user-drag: none;
 }
 
+.logo-image {
+  align-self: center;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 130px;
+  height: 130px;
+}
+
 .loaderWrapper {
   display: flex;
   justify-content: center;
