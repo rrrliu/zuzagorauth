@@ -95,7 +95,6 @@ export function openZKEdDSAEventTicketPopup(
       true
       );
       
-  console.log("🚀 ~ proofUrl:", proofUrl)
   openZupassPopup(popupUrl, proofUrl);
 }
 
@@ -120,41 +119,11 @@ async function login(inputParams: InputParams | null) {
   const events = objectKeys.map(key => whitelistedTickets[key]);
 
 
-  const validEventIds = (events: any[]) => {
-    return events.reduce((acc, event) => {
-      event.forEach((product: { eventId: string; }) => {
-        if (!acc.includes(product.eventId)) {
-          acc.push(product.eventId);
-        }
-      });
-      return acc;
-    }, []);
-  };
-
-  const displayValidEventIds = (events: any[]) => {
-    return events.reduce((acc, event) => {
-      event.forEach((product: { eventId: string; }) => {
-        if (!acc.includes(product.eventId)) {
-          acc.push(product.eventId);
-        }
-      });
-      return acc;
-    }, []);
-  };
-
-  const displayValidProductIds = (events: any[]) => {
-    return events.reduce((acc, event) => {
-      event.forEach((product: { productId: string; }) => {
-        if (!acc.includes(product.productId)) {
-          acc.push(product.productId);
-        }
-      });
-      return acc;
-    }, []);
-  };
+  const validEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
+  const displayValidEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
+  const displayValidProductIds = events.map(event => event.map((product: { productId: any; }) => product.productId)).flat();
   
-  console.log("🚀 ~ login ~ displayValidProductIds:", displayValidProductIds(events))
-  console.log("🚀 ~ login ~ validEventIds:", validEventIds(events))
+  console.log("🚀 ~ login ~ validEventIds:", validEventIds)
 
   openZKEdDSAEventTicketPopup(
     ZUPASS_URL,
@@ -162,9 +131,9 @@ async function login(inputParams: InputParams | null) {
     fieldsToReveal,
     revealFieldsUserProvided,
     watermark,
-    validEventIds(events),
-    displayValidEventIds(events),
-    displayValidProductIds(events),
+    validEventIds,
+    displayValidEventIds,
+    displayValidProductIds,
     externalNullifier
   )
 }
