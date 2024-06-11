@@ -15,6 +15,7 @@ export default function Home() {
   const [loading, setloading] = useState(false);
   const [inputParams, setInputParams] = useState<InputParams | null>(null);
   const { login } = useZupass();
+  
   // @ts-ignore
   const [pcdStr, _pendingPCDStr, multiPCDs] = useZupassPopupMessages();
   console.log("🚀 ~ Home ~ pcdStr:", pcdStr)
@@ -62,6 +63,7 @@ export default function Home() {
       const parsedProof = JSON.parse(proof);
       parsedProof.pcd = JSON.parse(parsedProof.pcd);
       const response = await authenticate(pcdStr);
+      console.log("🚀 ~ processProof ~ response:", response)
       const returnSSOURL = inputParams?.return_sso_url; // This is an example; use the actual return_sso_url from your payload.
 
       // Return

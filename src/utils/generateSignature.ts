@@ -8,6 +8,7 @@ import { toUrlEncodedString } from "./toUrl";
 
 export const generateSignature = (pcd: PCD<ZKEdDSAEventTicketPCDClaim, Groth16Proof>, nonce: string)  => {
   try {
+        console.log("🚀 ~ generateSignature ~ pcd:", pcd)
         // Extract the desired fields
         const attendeeEmail = pcd.claim.partialTicket.attendeeEmail;
         const attendeeSemaphoreId = pcd.claim.partialTicket.attendeeSemaphoreId;

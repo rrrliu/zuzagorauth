@@ -102,8 +102,8 @@ export function openZKEdDSAEventTicketPopup(
 async function login(inputParams: InputParams | null) {
   if (inputParams === null) return;
 
-  const watermark = generateSnarkMessageHash(process.env.NEXT_PUBLIC_WATERMARK);
-  const externalNullifier = generateSnarkMessageHash("consumer-client").toString();
+  const watermark = BigInt("0x" + inputParams.nonce.toString());
+  const externalNullifier = generateSnarkMessageHash(process.env.NEXT_PUBLIC_WATERMARK).toString();
 
   const fieldsToReveal = {
     revealAttendeeEmail: true,
@@ -116,7 +116,6 @@ async function login(inputParams: InputParams | null) {
   const objectKeys = Object.keys(whitelistedTickets);
   // @ts-ignore
   const events = objectKeys.map(key => whitelistedTickets[key]);
-
 
   const validEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
   const displayValidEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
