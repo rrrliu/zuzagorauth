@@ -17,6 +17,7 @@ export default function Home() {
   const { login } = useZupass();
 
   const error = useZupassPopupSetup();
+  console.log("🚀 ~ Home ~ error:", error)
 
   // @ts-ignore
   const [pcdStr, _pendingPCDStr, multiPCDs] = useZupassPopupMessages();
