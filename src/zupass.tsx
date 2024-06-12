@@ -39,6 +39,8 @@ async function login(inputParams: InputParams | null) {
       revealEventId: true,
       revealProductId: true
     },
+    // zupassUrl: ZUPASS_URL,
+    returnUrl: window.location.origin,
     watermark,
     config,
     proofTitle: "Sign-In with Zupass",
@@ -48,12 +50,11 @@ async function login(inputParams: InputParams | null) {
   
 
   const result = await zuAuthPopup(args);
+  console.log("🚀 ~ login ~ result:", result)
   if (result.type === "multi-pcd") {
     try {
       const pcds = await authenticate(result.pcds, watermark, config);
-      pcds.map(pcd =>
-        console.log("Got PCD data: ", pcd.claim.partialTicket)
-      )
+      console.log("Got PCD data: ", JSON.stringify(pcds))
     } catch (e) {
       console.log("Authentication failed: ", e);
     }
@@ -70,145 +71,135 @@ export function useZupass(): {
 
 
 
-// import { EdDSATicketPCDPackage } from "@pcd/eddsa-ticket-pcd";
-// import {
-//   constructZupassPcdGetRequestUrl,
-//   openZupassPopup
-// } from "@pcd/passport-interface";
-// import { ArgumentTypeName } from "@pcd/pcd-types";
-// import { SemaphoreIdentityPCDPackage } from "@pcd/semaphore-identity-pcd";
-// import { generateSnarkMessageHash } from "@pcd/util";
-// import {
-//   EdDSATicketFieldsToReveal,
-//   ZKEdDSAEventTicketPCDArgs,
-//   ZKEdDSAEventTicketPCDPackage
-// } from "@pcd/zk-eddsa-event-ticket-pcd";
-// import { ZUPASS_URL } from "./constants";
-// import { InputParams } from './types';
-// import { whitelistedTickets } from "./zupass-config";
+// 
+// ####################################
+// ####################################
+// 
+
+
+
+
+// export enum PCDRequestType {
+//   Get = "Get",
+//   GetWithoutProving = "GetWithoutProving",
+//   Add = "Add",
+//   ProveAndAdd = "ProveAndAdd"
+// }
+
+// export interface PCDRequest {
+//   returnUrl: string;
+//   type: PCDRequestType;
+// }
+
 
 // /**
-//  * Opens a Zupass popup to prove a prove a ZKEdDSATicketPCD.
-//  *
-//  * @param urlToZupassWebsite URL of the Zupass website
-//  * @param popupUrl Route where the useZupassPopupSetup hook is being served from
-//  * @param fieldsToReveal Ticket data fields that site is requesting for user to reveal
-//  * @param fieldsToRevealUserProvided Whether the user can customize the fields to reveal
-//  * @param watermark Challenge to watermark this proof to
-//  * @param externalNullifier Optional unique identifier for this ZKEdDSAEventTicketPCD
+//  * When a website uses the Zupass for signing in, Zupass
+//  * signs this payload using a `SemaphoreSignaturePCD`.
 //  */
-// export function openZKEdDSAEventTicketPopup(
-//   urlToZupassWebsite: string,
-//   popupUrl: string,
-//   fieldsToReveal: EdDSATicketFieldsToReveal,
-//   fieldsToRevealUserProvided: boolean,
-//   watermark: bigint,
-//   validEventIds: string[],
-//   displayValidEventIds: string[],
-//   displayValidProductIds: string[],
-//   externalNullifier?: string
-// ): void {
-//   const args: ZKEdDSAEventTicketPCDArgs = {
-//     ticket: {
-//       argumentType: ArgumentTypeName.PCD,
-//       pcdType: EdDSATicketPCDPackage.name,
-//       value: undefined,
-//       userProvided: true,
-//       displayName: "Ticket(s)",
-//       validatorParams: {
-//         eventIds: displayValidEventIds,
-//         productIds: displayValidProductIds,
-//         notFoundMessage: "No eligible PCDs found"
-//       }
-//     },
-//     identity: {
-//       argumentType: ArgumentTypeName.PCD,
-//       pcdType: SemaphoreIdentityPCDPackage.name,
-//       value: undefined,
-//       userProvided: true
-//     },
-//     validEventIds: {
-//       argumentType: ArgumentTypeName.StringArray,
-//       value: validEventIds.length !== 0 ? validEventIds : undefined,
-//       userProvided: false
-//     },
-//     fieldsToReveal: {
-//       argumentType: ArgumentTypeName.ToggleList,
-//       value: fieldsToReveal,
-//       userProvided: fieldsToRevealUserProvided
-//     },
-//     externalNullifier: {
-//       argumentType: ArgumentTypeName.BigInt,
-//       value: externalNullifier,
-//       userProvided: false
-//     },
-//     watermark: {
-//       argumentType: ArgumentTypeName.BigInt,
-//       value: watermark.toString(),
-//       userProvided: false
-//     }
-//   };
+// export interface SignInMessagePayload {
+//   uuid: string;
+//   referrer: string;
+// }
 
-//   const proofUrl = constructZupassPcdGetRequestUrl<
-//   typeof ZKEdDSAEventTicketPCDPackage
-//   >(
-//     urlToZupassWebsite,
-//     popupUrl,
-//     ZKEdDSAEventTicketPCDPackage.name,
+// export interface PCDGetRequest<T extends PCDPackage = PCDPackage>
+//   extends PCDRequest {
+//   type: PCDRequestType.Get;
+//   pcdType: T["name"];
+//   args: ArgsOf<T>;
+//   options?: ProveOptions;
+// }
+
+// export interface PCDGetWithoutProvingRequest extends PCDRequest {
+//   pcdType: string;
+// }
+
+// export interface PCDAddRequest extends PCDRequest {
+//   type: PCDRequestType.Add;
+//   pcd: SerializedPCD;
+// }
+
+// export interface PCDProveAndAddRequest<T extends PCDPackage = PCDPackage>
+//   extends PCDRequest {
+//   type: PCDRequestType.ProveAndAdd;
+//   pcdType: string;
+//   args: ArgsOf<T>;
+//   options?: ProveOptions;
+//   returnPCD?: boolean;
+// }
+
+// export function getWithoutProvingUrl(
+//   zupassClientUrl: string,
+//   returnUrl: string,
+//   pcdType: string
+// ) {
+//   const req: PCDGetWithoutProvingRequest = {
+//     type: PCDRequestType.GetWithoutProving,
+//     pcdType,
+//     returnUrl
+//   };
+//   const encReq = encodeURIComponent(JSON.stringify(req));
+//   return `${zupassClientUrl}#/get-without-proving?request=${encReq}`;
+// }
+
+// export function constructZupassPcdGetRequestUrl<T extends PCDPackage>(
+//   zupassClientUrl: string,
+//   returnUrl: string,
+//   pcdType: T["name"],
+//   args: ArgsOf<T>,
+//   options?: ProveOptions
+// ) {
+//   const req: PCDGetRequest<T> = {
+//     type: PCDRequestType.Get,
+//     returnUrl: returnUrl,
+//     args: args,
+//     pcdType,
+//     options
+//   };
+//   const encReq = encodeURIComponent(JSON.stringify(req));
+//   return `${zupassClientUrl}#/prove?request=${encReq}`;
+// }
+
+// export function constructZupassPcdAddRequestUrl(
+//   zupassClientUrl: string,
+//   returnUrl: string,
+//   pcd: SerializedPCD
+// ) {
+//   const req: PCDAddRequest = {
+//     type: PCDRequestType.Add,
+//     returnUrl: returnUrl,
+//     pcd
+//   };
+//   const eqReq = encodeURIComponent(JSON.stringify(req));
+//   return `${zupassClientUrl}#/add?request=${eqReq}`;
+// }
+
+// export function constructZupassPcdProveAndAddRequestUrl<
+//   T extends PCDPackage = PCDPackage
+// >(
+//   zupassClientUrl: string,
+//   returnUrl: string,
+//   pcdType: string,
+//   args: ArgsOf<T>,
+//   options?: ProveOptions,
+//   returnPCD?: boolean
+// ) {
+//   const req: PCDProveAndAddRequest = {
+//     type: PCDRequestType.ProveAndAdd,
+//     returnUrl: returnUrl,
+//     pcdType,
 //     args,
-//     {
-//       genericProveScreen: true,
-//       title: "ZKEdDSA Proof",
-//       description: "zkeddsa ticket pcd request",
-//       // @ts-ignore
-//       multi: true
-//       },
-//       true
-//       );
-      
-//   openZupassPopup(popupUrl, proofUrl);
-// }
-
-
-
-// async function login(inputParams: InputParams | null) {
-//   if (inputParams === null) return;
-
-//   const watermark = BigInt("0x" + inputParams.nonce.toString());
-//   const externalNullifier = generateSnarkMessageHash(process.env.NEXT_PUBLIC_WATERMARK).toString();
-
-//   const fieldsToReveal = {
-//     revealAttendeeEmail: true,
-//     revealEventId: true,
-//     revealProductId: true,
-//     revealAttendeeSemaphoreId: true
+//     options,
+//     returnPCD
 //   };
-//   const revealFieldsUserProvided = true;
-
-//   const objectKeys = Object.keys(whitelistedTickets);
-//   // @ts-ignore
-//   const events = objectKeys.map(key => whitelistedTickets[key]);
-
-//   const validEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
-//   const displayValidEventIds = events.map(event => event.map((product: { eventId: any; }) => product.eventId)).flat();
-//   const displayValidProductIds = events.map(event => event.map((product: { productId: any; }) => product.productId)).flat();
-
-//   openZKEdDSAEventTicketPopup(
-//     ZUPASS_URL,
-//     window.location.origin + "/popup/",
-//     fieldsToReveal,
-//     revealFieldsUserProvided,
-//     watermark,
-//     validEventIds,
-//     displayValidEventIds,
-//     displayValidProductIds,
-//     externalNullifier
-//   )
+//   const eqReq = encodeURIComponent(JSON.stringify(req));
+//   return `${zupassClientUrl}#/add?request=${eqReq}`;
 // }
 
-// export function useZupass(): {
-//   login: (params: InputParams | null) => Promise<void>;
-// } {
-
-//   return { login };
-// }
+// export const getAnonTopicNullifier = (
+//   chatId: number,
+//   topicId: number
+// ): bigint => {
+//   return BigInt(
+//     "0x" + sha256(JSON.stringify({ chatId, topicId })).substring(0, 16)
+//   );
+// };
